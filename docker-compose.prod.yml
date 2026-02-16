@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: auth-postgres-prod
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-auth_prod}
+    volumes:
+      - prod_db_data:/var/lib/postgresql/data
+    networks:
+      - backend_net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.api
+    container_name: auth-api-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-auth_prod}
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=${PORT:-3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend_net
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "require(''http'').get(''http://localhost:''+(process.env.PORT||3000)+''/api'',r=>{r.resume();process.exit(r.statusCode===200?0:1)}).on(''error'',()=>process.exit(1))"',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  gateway:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.web
+    container_name: auth-gateway-prod
+    restart: unless-stopped
+    ports:
+      - '${GATEWAY_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - backend_net
+
+networks:
+  backend_net:
+    driver: bridge
+
+volumes:
+  prod_db_data:

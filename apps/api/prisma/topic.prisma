@@ -1,0 +1,19 @@
+model Topic {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String
+  description String?
+  sortOrder   Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  materialTopics   MaterialTopic[]
+  studentInterests StudentInterest[]
+
+  @@unique([categoryId, slug])
+  @@index([categoryId])
+}

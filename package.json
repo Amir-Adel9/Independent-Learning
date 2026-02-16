@@ -1,0 +1,47 @@
+{
+  "name": "independent-learning",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "start:dev": "turbo dev",
+    "stop:dev": "docker compose -f docker-compose.dev.yml down",
+    "start:prod": "docker compose -f docker-compose.prod.yml up --build -d && docker compose -f docker-compose.prod.yml logs -f",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:all": "turbo run test && turbo run test:e2e --filter=api",
+    "test:e2e:api": "turbo run test:e2e --filter=api",
+    "test:e2e:web": "turbo run test:e2e --filter=web",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "api:dev": "turbo run dev --filter=api",
+    "api:build": "turbo run build --filter=api",
+    "api:start": "turbo run start --filter=api",
+    "web:dev": "turbo run dev --filter=web",
+    "web:build": "turbo run build --filter=web",
+    "web:preview": "turbo run preview --filter=web",
+    "playwright:install": "turbo run install-browsers --filter=web",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "db:down": "docker compose -f docker-compose.dev.yml down",
+    "db:restart": "docker compose -f docker-compose.dev.yml down && docker compose -f docker-compose.dev.yml up -d"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^16.0.0",
+    "prettier": "^3.7.4",
+    "turbo": "^2.8.3",
+    "typescript": "5.9.2",
+    "typescript-eslint": "^8.50.0"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  }
+}

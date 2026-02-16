@@ -1,0 +1,717 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api": {
+      "get": {
+        "operationId": "AppController_getIndex",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of all users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserEntity"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing access token"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Get all users",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing access token"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Get user by ID",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "description": "Creates a user and logs them in. Sets access_token and refresh_token via Set-Cookie (httpOnly).",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful; user is logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User with this email already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 409
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User with this email already exists"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a new user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "description": "Authenticates and sets access_token and refresh_token via Set-Cookie (httpOnly).",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/refresh": {
+      "post": {
+        "description": "Uses the refresh_token cookie to issue a new access_token and refresh_token (rotation). Requires the refresh_token cookie (sent only to this path).",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "New token pair set via Set-Cookie; returns current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "refresh_token": []
+          }
+        ],
+        "summary": "Refresh tokens",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "description": "Clears the stored refresh token and both cookies. Requires access_token cookie.",
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          },
+          "401": {
+            "description": "Invalid or missing access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Logout",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current user (requires access_token cookie)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or missing access token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access_token": []
+          }
+        ],
+        "summary": "Get current user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "operationId": "CategoriesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoryEntity" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Get all categories",
+        "tags": ["Categories"]
+      },
+      "post": {
+        "operationId": "CategoriesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateCategoryDto" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Create category",
+        "tags": ["Categories"]
+      }
+    },
+    "/api/categories/{id}": {
+      "get": {
+        "operationId": "CategoriesController_findOne",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "Category found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Category not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Get category by ID",
+        "tags": ["Categories"]
+      },
+      "patch": {
+        "operationId": "CategoriesController_update",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateCategoryDto" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Category not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Update category",
+        "tags": ["Categories"]
+      },
+      "delete": {
+        "operationId": "CategoriesController_remove",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "Category deleted",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CategoryEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Category not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Delete category",
+        "tags": ["Categories"]
+      }
+    },
+    "/api/admins": {
+      "get": {
+        "operationId": "AdminsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of admins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/AdminEntity" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Get all admins",
+        "tags": ["Admins"]
+      },
+      "post": {
+        "description": "Create admin. Requires super_admin role.",
+        "operationId": "AdminsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateAdminDto" } }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Admin created",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AdminEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "403": { "description": "Only super_admin can create admins" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Create admin",
+        "tags": ["Admins"]
+      }
+    },
+    "/api/admins/by-email/{email}": {
+      "get": {
+        "operationId": "AdminsController_findByEmail",
+        "parameters": [{ "name": "email", "required": true, "in": "path", "schema": { "type": "string", "format": "email" } }],
+        "responses": {
+          "200": {
+            "description": "Admin found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AdminEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Admin not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Get admin by email",
+        "tags": ["Admins"]
+      }
+    },
+    "/api/admins/{id}": {
+      "get": {
+        "operationId": "AdminsController_findById",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "Admin found",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AdminEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Admin not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Get admin by ID",
+        "tags": ["Admins"]
+      },
+      "patch": {
+        "operationId": "AdminsController_update",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateAdminDto" } }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Admin updated",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AdminEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Admin not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Update admin",
+        "tags": ["Admins"]
+      },
+      "delete": {
+        "operationId": "AdminsController_remove",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": {
+          "200": {
+            "description": "Admin deleted",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/AdminEntity" } }
+            }
+          },
+          "401": { "description": "Invalid or missing access token" },
+          "404": { "description": "Admin not found" }
+        },
+        "security": [{ "access_token": [] }],
+        "summary": "Delete admin",
+        "tags": ["Admins"]
+      }
+    }
+  },
+  "info": {
+    "title": "Easygenerator Auth API",
+    "description": "This API uses httpOnly cookies for session management: the access_token cookie is sent with general authenticated requests, and the refresh_token cookie is used for token rotation (path-restricted to /api/auth/refresh). Login and register set both cookies; protected routes require the access_token cookie.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access_token": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token"
+      },
+      "refresh_token": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "refresh_token"
+      }
+    },
+    "schemas": {
+      "UserEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["super_admin", "admin", "editor"]
+          }
+        },
+        "required": ["email", "name"]
+      },
+      "CategoryEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string", "nullable": true }
+        },
+        "required": ["id", "name"]
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 3, "maxLength": 20 },
+          "description": { "type": "string" }
+        },
+        "required": ["name"]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 3, "maxLength": 20 },
+          "description": { "type": "string" }
+        }
+      },
+      "AdminEntity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "email": { "type": "string" },
+          "name": { "type": "string", "nullable": true },
+          "role": { "type": "string", "enum": ["super_admin", "admin", "editor"] },
+          "isActive": { "type": "boolean" }
+        },
+        "required": ["id", "email", "role", "isActive"]
+      },
+      "CreateAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "password": { "type": "string", "minLength": 6 },
+          "role": { "type": "string", "enum": ["admin", "editor"] },
+          "isActive": { "type": "boolean" }
+        },
+        "required": ["email", "password", "role"]
+      },
+      "UpdateAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "format": "email" },
+          "name": { "type": "string" },
+          "password": { "type": "string", "minLength": 6 },
+          "role": { "type": "string", "enum": ["super_admin", "admin", "editor"] },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "minLength": 3
+          },
+          "password": {
+            "type": "string",
+            "example": "Password1!",
+            "minLength": 8,
+            "description": "Min 8 characters, at least one letter, one number, one special character"
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "your-password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      }
+    }
+  }
+}

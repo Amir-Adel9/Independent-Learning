@@ -1,0 +1,21 @@
+model FeaturedList {
+  id                String              @id @default(uuid())
+  name              String
+  slug              String              @unique
+  description       String?
+  sortOrder         Int
+  isActive          Boolean             @default(true)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  featuredMaterials FeaturedListItems[]
+}
+
+model FeaturedListItems {
+  id                 String       @id @default(uuid())
+  featuredListId     String
+  learningMaterialId String
+  sortOrder          Int
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  featuredList       FeaturedList @relation(fields: [featuredListId], references: [id])
+}

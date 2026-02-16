@@ -1,0 +1,17 @@
+enum AdminRole {
+  super_admin
+  admin
+  editor
+}
+
+model Admin {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  password     String
+  role         AdminRole
+  isActive     Boolean   @default(true)
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

@@ -1,0 +1,108 @@
+enum MaterialStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MaterialType {
+  ARTICLE
+  VIDEO
+  EXTERNAL
+  MINI_COURSE
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+model LearningMaterial {
+  id String @id @default(uuid())
+
+  title            String
+  slug             String  @unique
+  shortDescription String?
+  thumbnailUrl     String?
+
+  status     MaterialStatus @default(DRAFT)
+  type       MaterialType
+  difficulty Difficulty
+
+  primaryCategoryId String
+  primaryCategory   Category @relation("PrimaryCategory", fields: [primaryCategoryId], references: [id])
+
+  // keep tags flexible for MVP; store array like ["space","nasa"]
+  tags Json?
+
+  content MaterialContent?
+
+  topics                 MaterialTopic[]
+  savedBy                StudentSavedMaterial[]
+  progress               StudentProgress[]
+  recentViews            StudentRecentView[]
+  collection             MaterialCollection?      @relation("ParentCollection")
+  collectionItemsAsChild MaterialCollectionItem[] @relation("ChildCollection")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([primaryCategoryId])
+  @@index([status])
+  @@index([type])
+  @@index([difficulty])
+}
+
+model MaterialContent {
+  materialId String           @id
+  material   LearningMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  // Type-specific payload stored as JSON:
+  // ARTICLE: { bodyHtml, readingMinutes? }
+  // VIDEO: { provider?, url, durationSec? }
+  // EXTERNAL: { url }
+  // MINI_COURSE: { summary? } (items live in collection tables)
+  data Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MaterialTopic {
+  materialId String
+  topicId    String
+
+  material LearningMaterial @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  topic    Topic            @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([materialId, topicId])
+  @@index([topicId])
+}
+
+model MaterialCollection {
+  id String @id @default(uuid())
+
+  // the parent LearningMaterial (type = MINI_COURSE)
+  materialId String           @unique
+  material   LearningMaterial @relation("ParentCollection", fields: [materialId], references: [id], onDelete: Cascade)
+
+  items MaterialCollectionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MaterialCollectionItem {
+  collectionId    String
+  childMaterialId String
+
+  sortOrder Int
+
+  collection MaterialCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  child      LearningMaterial   @relation("ChildCollection", fields: [childMaterialId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, childMaterialId])
+  @@unique([collectionId, sortOrder])
+  @@index([childMaterialId])
+  @@index([collectionId])
+}
