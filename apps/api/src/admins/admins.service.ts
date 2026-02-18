@@ -8,7 +8,7 @@ import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { AdminEntity } from './entities/admin.entity';
-
+``
 import * as bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 10;

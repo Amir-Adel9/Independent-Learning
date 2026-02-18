@@ -58,14 +58,16 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar side="left" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold text-sm">
-            IL
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate font-semibold text-sidebar-foreground">
+    <Sidebar side='left' className='border-r border-sidebar-border'>
+      <SidebarHeader className='border-b border-sidebar-border'>
+        <div className='flex items-center gap-2 px-2 py-2'>
+          <img
+            src='/favicon.png'
+            alt=''
+            className='size-8 shrink-0 rounded-lg object-contain'
+          />
+          <div className='flex min-w-0 flex-1 flex-col'>
+            <span className='truncate font-semibold text-sidebar-foreground'>
               Independent Learning
             </span>
           </div>
@@ -87,9 +89,9 @@ export function AppSidebar() {
                         handleNavigate(to);
                       }
                     }}
-                    className="cursor-pointer"
+                    className='cursor-pointer'
                   >
-                    <Icon className="size-4" />
+                    <Icon className='size-4' />
                     {label}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -98,18 +100,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex flex-col gap-2 p-2">
-          <div className="flex items-center gap-2 rounded-md px-2 py-2">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium">
+      <SidebarFooter className='border-t border-sidebar-border'>
+        <div className='flex flex-col gap-2 p-2'>
+          <div className='flex items-center gap-2 rounded-md px-2 py-2'>
+            <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium'>
               {initials}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-sidebar-foreground">
+            <div className='min-w-0 flex-1'>
+              <p className='truncate text-sm font-medium text-sidebar-foreground'>
                 {displayName}
               </p>
               {email && (
-                <p className="truncate text-xs text-sidebar-foreground/80">
+                <p className='truncate text-xs text-sidebar-foreground/80'>
                   {email}
                 </p>
               )}
@@ -118,10 +120,10 @@ export function AppSidebar() {
           <SidebarMenuButton
             onClick={() => handleLogout()}
             disabled={logout.isPending}
-            className="cursor-pointer text-sidebar-foreground"
-            aria-label="Log out"
+            className='cursor-pointer text-sidebar-foreground'
+            aria-label='Log out'
           >
-            <LogOut className="size-4" />
+            <LogOut className='size-4' />
             Logout
           </SidebarMenuButton>
         </div>

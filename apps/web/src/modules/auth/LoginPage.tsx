@@ -12,8 +12,8 @@ import {
 import { InfoIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DEMO_EMAIL = 'admin@example.com';
-const DEMO_PASSWORD = 'admin123!';
+const DEMO_EMAIL = 'superadmin@example.com';
+const DEMO_PASSWORD = 'SuperAdmin123!';
 
 function DemoCredential({
   value,
@@ -60,25 +60,27 @@ export function LoginPage() {
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="flex items-start gap-3 rounded-lg border border-primary/10 bg-primary/5 p-3">
-          <InfoIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
-          <div className="space-y-0.5 text-xs">
-            <p className="font-medium text-foreground">Demo credentials</p>
-            <p className="text-muted-foreground">
-              <DemoCredential
-                value={DEMO_EMAIL}
-                label="email"
-                onFill={(v) => loginFormRef.current?.fillEmail(v)}
-              />
-              {' / '}
-              <DemoCredential
-                value={DEMO_PASSWORD}
-                label="password"
-                onFill={(v) => loginFormRef.current?.fillPassword(v)}
-              />
-            </p>
+        {import.meta.env.DEV && (
+          <div className="flex items-start gap-3 rounded-lg border border-primary/10 bg-primary/5 p-3">
+            <InfoIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
+            <div className="space-y-0.5 text-xs">
+              <p className="font-medium text-foreground">Demo credentials</p>
+              <p className="text-muted-foreground">
+                <DemoCredential
+                  value={DEMO_EMAIL}
+                  label="email"
+                  onFill={(v) => loginFormRef.current?.fillEmail(v)}
+                />
+                {' / '}
+                <DemoCredential
+                  value={DEMO_PASSWORD}
+                  label="password"
+                  onFill={(v) => loginFormRef.current?.fillPassword(v)}
+                />
+              </p>
+            </div>
           </div>
-        </div>
+        )}
         <LoginForm ref={loginFormRef} />
       </CardContent>
       <CardFooter className="justify-center">

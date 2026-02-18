@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "dev": "wait-on http://localhost:3001/api -t 60000 && vite",
+    "dev": "wait-on tcp:localhost:3001 -t 90000 && vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 5173",

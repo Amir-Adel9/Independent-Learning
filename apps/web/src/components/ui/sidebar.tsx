@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { PanelLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarContextValue {
@@ -51,7 +52,10 @@ interface SidebarProviderProps {
   defaultOpen?: boolean;
 }
 
-function SidebarProvider({ children, defaultOpen = true }: SidebarProviderProps) {
+function SidebarProvider({
+  children,
+  defaultOpen = true,
+}: SidebarProviderProps) {
   const isMobile = useIsMobile();
   const [open, setOpenState] = React.useState(defaultOpen);
   const [openMobile, setOpenMobile] = React.useState(false);
@@ -60,13 +64,16 @@ function SidebarProvider({ children, defaultOpen = true }: SidebarProviderProps)
     setOpenState(getSidebarState());
   }, []);
 
-  const setOpen = React.useCallback((value: boolean | ((prev: boolean) => boolean)) => {
-    setOpenState((prev) => {
-      const next = typeof value === 'function' ? value(prev) : value;
-      if (typeof document !== 'undefined') setSidebarState(next);
-      return next;
-    });
-  }, []);
+  const setOpen = React.useCallback(
+    (value: boolean | ((prev: boolean) => boolean)) => {
+      setOpenState((prev) => {
+        const next = typeof value === 'function' ? value(prev) : value;
+        if (typeof document !== 'undefined') setSidebarState(next);
+        return next;
+      });
+    },
+    [],
+  );
 
   const value: SidebarContextValue = {
     open,
@@ -111,7 +118,12 @@ function Sidebar({
           className={cn(
             'fixed inset-y-0 z-50 flex h-full w-[--sidebar-width] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform duration-200 ease-in-out md:relative md:translate-x-0',
             side === 'left' ? 'left-0' : 'right-0',
-            isMobile && (openMobile ? 'translate-x-0' : (side === 'left' ? '-translate-x-full' : 'translate-x-full')),
+            isMobile &&
+              (openMobile
+                ? 'translate-x-0'
+                : side === 'left'
+                  ? '-translate-x-full'
+                  : 'translate-x-full'),
             'md:data-[state=collapsed]:w-16',
             className,
           )}
@@ -140,7 +152,7 @@ function Sidebar({
 function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="header"
+      data-sidebar='header'
       className={cn('flex flex-col gap-2 p-2', className)}
       {...props}
     />
@@ -150,7 +162,7 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
 function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="content"
+      data-sidebar='content'
       className={cn('flex flex-1 flex-col gap-2 overflow-auto p-2', className)}
       {...props}
     />
@@ -160,7 +172,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<'div'>) {
 function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="footer"
+      data-sidebar='footer'
       className={cn('mt-auto flex flex-col gap-2 p-2', className)}
       {...props}
     />
@@ -170,7 +182,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<'div'>) {
 function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="group"
+      data-sidebar='group'
       className={cn('flex w-full min-w-0 flex-col gap-1', className)}
       {...props}
     />
@@ -183,7 +195,7 @@ function SidebarGroupLabel({
 }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="group-label"
+      data-sidebar='group-label'
       className={cn(
         'px-2 py-1.5 text-xs font-medium text-sidebar-foreground/70',
         className,
@@ -199,7 +211,7 @@ function SidebarGroupContent({
 }: React.ComponentProps<'div'>) {
   return (
     <div
-      data-sidebar="group-content"
+      data-sidebar='group-content'
       className={cn('flex w-full min-w-0 flex-col gap-1', className)}
       {...props}
     />
@@ -209,20 +221,17 @@ function SidebarGroupContent({
 function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
   return (
     <ul
-      data-sidebar="menu"
+      data-sidebar='menu'
       className={cn('flex w-full min-w-0 flex-col gap-1', className)}
       {...props}
     />
   );
 }
 
-function SidebarMenuItem({
-  className,
-  ...props
-}: React.ComponentProps<'li'>) {
+function SidebarMenuItem({ className, ...props }: React.ComponentProps<'li'>) {
   return (
     <li
-      data-sidebar="menu-item"
+      data-sidebar='menu-item'
       className={cn('group relative', className)}
       {...props}
     />
@@ -238,8 +247,8 @@ function SidebarMenuButton({
 }) {
   return (
     <button
-      type="button"
-      data-sidebar="menu-button"
+      type='button'
+      data-sidebar='menu-button'
       data-active={isActive}
       className={cn(
         'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm outline-none transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring',
@@ -254,7 +263,7 @@ function SidebarMenuButton({
 function SidebarInset({ className, ...props }: React.ComponentProps<'main'>) {
   return (
     <main
-      data-sidebar="inset"
+      data-sidebar='inset'
       className={cn(
         'relative flex min-h-screen min-w-0 flex-1 flex-col',
         className,
@@ -271,15 +280,18 @@ function SidebarTrigger({
   const { isMobile, setOpenMobile } = useSidebar();
   return (
     <button
-      data-sidebar="trigger"
-      aria-label="Toggle sidebar"
+      type="button"
+      data-sidebar='trigger'
+      aria-label='Toggle sidebar'
       className={cn(
-        'inline-flex size-9 items-center justify-center rounded-md border border-sidebar-border bg-sidebar hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        'inline-flex size-9 shrink-0 items-center justify-center rounded-md text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring',
         className,
       )}
       onClick={() => (isMobile ? setOpenMobile((p: boolean) => !p) : undefined)}
       {...props}
-    />
+    >
+      <PanelLeft className="size-5" aria-hidden />
+    </button>
   );
 }
 
