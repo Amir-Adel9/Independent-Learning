@@ -1,18 +1,23 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { AdminEntity } from '../admins/entities/admin.entity';
 import { AdminsService } from '../admins/admins.service';
 import { AuthenticatedAdminEntity } from './entities/authenticated-admin.entity';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import type { JwtPayload } from './strategies/jwt.strategy';
 
 type AdminWithPassword = AdminEntity & { password: string };
 
 const ACCESS_TOKEN_MAX_AGE_MS = 900_000; // 15 minutes
 const REFRESH_TOKEN_MAX_AGE_MS = 604_800_000; // 7 days
-const REFRESH_COOKIE_PATH = '/auth/refresh';
+const REFRESH_COOKIE_PATH = '/api/auth/refresh';
 
 @Injectable()
 export class AuthService {
@@ -52,7 +57,6 @@ export class AuthService {
   async setCookies(res: Response, admin: AdminEntity): Promise<void> {
     const accessToken = this.getAccessToken(admin);
     const refreshToken = this.getRefreshToken(admin);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- AdminsService cross-module resolution
     await this.adminsService.updateRefreshToken(admin.id, refreshToken);
 
     const cookieOptions = {
@@ -69,6 +73,27 @@ export class AuthService {
       maxAge: REFRESH_TOKEN_MAX_AGE_MS,
       path: REFRESH_COOKIE_PATH,
     });
+  }
+
+  async register(
+    dto: RegisterDto,
+    res: Response,
+  ): Promise<AuthenticatedAdminEntity> {
+    const existing = await this.adminsService.findAdminByEmailWithPassword(
+      dto.email,
+    );
+    if (existing) {
+      throw new ConflictException('User with this email already exists');
+    }
+    const admin = await this.adminsService.createAdmin({
+      email: dto.email,
+      name: dto.name,
+      password: dto.password,
+      role: 'editor',
+      isActive: true,
+    });
+    await this.setCookies(res, admin);
+    return this.toAuthResponse(admin);
   }
 
   async login(dto: LoginDto, res: Response): Promise<AuthenticatedAdminEntity> {

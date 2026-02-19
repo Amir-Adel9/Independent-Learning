@@ -6,12 +6,14 @@ import React from 'react';
 
 const mockMutate = vi.fn();
 
-vi.mock('@/api/hooks/use-register', () => ({
-  useRegister: () => ({
-    mutate: mockMutate,
-    isPending: false,
-    isError: false,
-    error: null,
+vi.mock('@/hooks/use-auth', () => ({
+  useAuth: () => ({
+    register: {
+      mutate: mockMutate,
+      isPending: false,
+      isError: false,
+      error: null,
+    },
   }),
 }));
 

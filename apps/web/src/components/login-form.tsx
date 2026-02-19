@@ -5,7 +5,7 @@ import { zodResolver } from '@/lib/zod-resolver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useLogin } from '@/api/hooks/use-login';
+import { useAuth } from '@/hooks/use-auth';
 import { extractErrorMessage } from '@/api/client';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ export type LoginFormRef = {
 };
 
 export const LoginForm = forwardRef<LoginFormRef>(function LoginForm(_, ref) {
-  const login = useLogin();
+  const { login } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const {

@@ -1,4 +1,4 @@
-name: Easygenerator - Full Stack Auth CI/CD
+name: LMS - Full Stack Auth CI/CD
 
 on:
   push:
@@ -83,7 +83,7 @@ jobs:
     needs: [ci]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     env:
-      # Optional: set repo variable DEPLOY_APP_DIR to override (e.g. /opt/easygenerator-auth)
+      # Optional: set repo variable DEPLOY_APP_DIR to override (e.g. /opt/lms-auth)
       DEPLOY_APP_DIR: ${{ secrets.DEPLOY_APP_DIR }}
     steps:
       - name: Prepare SSH key
@@ -119,7 +119,7 @@ jobs:
             -i ~/.ssh/deploy_key \
             "$SSH_USER@$SSH_HOST" bash -s << REMOTE_SCRIPT
           export DEPLOY_APP_DIR="$REMOTE_DIR"
-          cd "\${DEPLOY_APP_DIR:-\$HOME/easygenerator-auth}" || exit 1
+          cd "\${DEPLOY_APP_DIR:-\$HOME/lms-auth}" || exit 1
           git fetch origin && git reset --hard origin/main
           docker compose -f docker-compose.prod.yml up -d --build
           sleep 5

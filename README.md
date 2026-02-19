@@ -1,4 +1,4 @@
-# Easygenerator – Full Stack Auth
+# LMS – Full Stack Auth
 
 Monorepo: **API** (NestJS + MongoDB) and **Web** (React + Vite). No env files are required for a quick run; sensible defaults are built in.
 
@@ -118,7 +118,7 @@ pnpm start:prod
 | Variable                | Description                                     |
 | ----------------------- | ----------------------------------------------- |
 | `GATEWAY_PORT`          | Host port for the prod gateway (default `8080`) |
-| `MONGO_INITDB_DATABASE` | MongoDB database name (e.g. `easygenerator`)    |
+| `MONGO_INITDB_DATABASE` | MongoDB database name (e.g. `lms`)    |
 | `MONGODB_URI`           | MongoDB connection string (API)                 |
 | `JWT_SECRET`            | Secret for JWT signing (API)                    |
 | `PORT`                  | API port (default `3000`)                       |

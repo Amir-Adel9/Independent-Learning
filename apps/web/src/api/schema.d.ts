@@ -4,14 +4,15 @@
  */
 
 export interface paths {
-    "/api": {
+    "/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["AppController_getIndex"];
+        /** Root */
+        get: operations["AppController_getHello"];
         put?: never;
         post?: never;
         delete?: never;
@@ -20,15 +21,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users": {
+    "/health": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get all users */
-        get: operations["UsersController_findAll"];
+        /** Health check */
+        get: operations["AppController_health"];
         put?: never;
         post?: never;
         delete?: never;
@@ -37,24 +38,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users/{id}": {
+    "/categories": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get user by ID */
-        get: operations["UsersController_findOne"];
+        /** Get all categories */
+        get: operations["CategoriesController_findAllCategories"];
         put?: never;
-        post?: never;
+        /** Create category */
+        post: operations["CategoriesController_createCategory"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/auth/register": {
+    "/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get category by ID */
+        get: operations["CategoriesController_findCategoryById"];
+        put?: never;
+        post?: never;
+        /** Delete category */
+        delete: operations["CategoriesController_removeCategory"];
+        options?: never;
+        head?: never;
+        /** Update category */
+        patch: operations["CategoriesController_updateCategory"];
+        trace?: never;
+    };
+    "/auth/register": {
         parameters: {
             query?: never;
             header?: never;
@@ -74,7 +95,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/login": {
+    "/auth/login": {
         parameters: {
             query?: never;
             header?: never;
@@ -94,7 +115,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/refresh": {
+    "/auth/refresh": {
         parameters: {
             query?: never;
             header?: never;
@@ -114,7 +135,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/logout": {
+    "/auth/logout": {
         parameters: {
             query?: never;
             header?: never;
@@ -134,7 +155,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/auth/me": {
+    "/auth/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -151,44 +172,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/categories": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all categories */
-        get: operations["CategoriesController_findAll"];
-        put?: never;
-        /** Create category */
-        post: operations["CategoriesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/categories/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get category by ID */
-        get: operations["CategoriesController_findOne"];
-        put?: never;
-        post?: never;
-        /** Delete category */
-        delete: operations["CategoriesController_remove"];
-        options?: never;
-        head?: never;
-        /** Update category */
-        patch: operations["CategoriesController_update"];
-        trace?: never;
-    };
-    "/api/admins": {
+    "/admins": {
         parameters: {
             query?: never;
             header?: never;
@@ -200,7 +184,7 @@ export interface paths {
         put?: never;
         /**
          * Create admin
-         * @description Create admin. Requires super_admin role.
+         * @description Requires super_admin role.
          */
         post: operations["AdminsController_create"];
         delete?: never;
@@ -209,7 +193,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admins/by-email/{email}": {
+    "/admins/by-email/{email}": {
         parameters: {
             query?: never;
             header?: never;
@@ -217,7 +201,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get admin by email */
-        get: operations["AdminsController_findByEmail"];
+        get: operations["AdminsController_findAdminByEmail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -226,7 +210,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admins/{id}": {
+    "/admins/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -238,64 +222,29 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete admin */
-        delete: operations["AdminsController_remove"];
+        delete: operations["AdminsController_removeAdmin"];
         options?: never;
         head?: never;
         /** Update admin */
-        patch: operations["AdminsController_update"];
+        patch: operations["AdminsController_updateAdmin"];
         trace?: never;
     };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        UserEntity: {
-            id?: string;
-            /** @example user@example.com */
-            email: string;
-            /** @example John Doe */
-            name: string;
-            /** @enum {string} */
-            role?: "super_admin" | "admin" | "editor";
-        };
-        CategoryEntity: {
-            id: string;
-            name: string;
-            description?: string | null;
-        };
         CreateCategoryDto: {
             name: string;
             description?: string;
         };
+        CategoryEntity: {
+            id: string;
+            name: string;
+            description: string | null;
+        };
         UpdateCategoryDto: {
             name?: string;
             description?: string;
-        };
-        AdminEntity: {
-            id: string;
-            email: string;
-            name?: string | null;
-            /** @enum {string} */
-            role: "super_admin" | "admin" | "editor";
-            isActive: boolean;
-        };
-        CreateAdminDto: {
-            /** Format: email */
-            email: string;
-            name?: string;
-            password: string;
-            /** @enum {string} */
-            role: "admin" | "editor";
-            isActive?: boolean;
-        };
-        UpdateAdminDto: {
-            /** Format: email */
-            email?: string;
-            name?: string;
-            password?: string;
-            /** @enum {string} */
-            role?: "super_admin" | "admin" | "editor";
-            isActive?: boolean;
         };
         RegisterDto: {
             /** @example user@example.com */
@@ -308,11 +257,47 @@ export interface components {
              */
             password: string;
         };
+        AuthenticatedAdminEntity: {
+            /** @example user@example.com */
+            email: string;
+            /** @example John Doe */
+            name: string | null;
+            /** @enum {string} */
+            role: "super_admin" | "admin" | "editor";
+        };
         LoginDto: {
             /** @example user@example.com */
             email: string;
             /** @example your-password */
             password: string;
+        };
+        AdminEntity: {
+            id: string;
+            /** @example admin@example.com */
+            email: string;
+            /** @example Admin Name */
+            name: string | null;
+            /** @enum {string} */
+            role: "super_admin" | "admin" | "editor";
+            isActive: boolean;
+        };
+        CreateAdminDto: {
+            /** @example admin@example.com */
+            email: string;
+            name?: string;
+            password: string;
+            /** @enum {string} */
+            role: "admin" | "editor";
+            isActive?: boolean;
+        };
+        UpdateAdminDto: {
+            /** @example admin@example.com */
+            email?: string;
+            name?: string;
+            password?: string;
+            /** @enum {string} */
+            role?: "admin" | "editor";
+            isActive?: boolean;
         };
     };
     responses: never;
@@ -323,7 +308,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AppController_getIndex: {
+    AppController_getHello: {
         parameters: {
             query?: never;
             header?: never;
@@ -332,6 +317,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Hello */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -340,7 +326,7 @@ export interface operations {
             };
         };
     };
-    UsersController_findAll: {
+    AppController_health: {
         parameters: {
             query?: never;
             header?: never;
@@ -349,25 +335,64 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description List of all users */
+            /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"][];
+                    "application/json": {
+                        status?: string;
+                    };
                 };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
-    UsersController_findOne: {
+    CategoriesController_findAllCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of categories */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryEntity"][];
+                };
+            };
+        };
+    };
+    CategoriesController_createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryDto"];
+            };
+        };
+        responses: {
+            /** @description Category created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryEntity"];
+                };
+            };
+        };
+    };
+    CategoriesController_findCategoryById: {
         parameters: {
             query?: never;
             header?: never;
@@ -378,23 +403,78 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description User found */
+            /** @description Category found */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"];
+                    "application/json": components["schemas"]["CategoryEntity"];
                 };
             };
-            /** @description Invalid or missing access token */
-            401: {
+            /** @description Category not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description User not found */
+        };
+    };
+    CategoriesController_removeCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Category deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryEntity"];
+                };
+            };
+            /** @description Category not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CategoriesController_updateCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryDto"];
+            };
+        };
+        responses: {
+            /** @description Category updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryEntity"];
+                };
+            };
+            /** @description Category not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -422,7 +502,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"];
+                    "application/json": components["schemas"]["AuthenticatedAdminEntity"];
                 };
             };
             /** @description User with this email already exists */
@@ -462,7 +542,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"];
+                    "application/json": components["schemas"]["AuthenticatedAdminEntity"];
                 };
             };
             /** @description Invalid email or password */
@@ -497,7 +577,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"];
+                    "application/json": components["schemas"]["AuthenticatedAdminEntity"];
                 };
             };
             /** @description Invalid or missing refresh token */
@@ -565,7 +645,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UserEntity"];
+                    "application/json": components["schemas"]["AuthenticatedAdminEntity"];
                 };
             };
             /** @description Invalid or missing access token */
@@ -582,176 +662,6 @@ export interface operations {
                         message?: string;
                     };
                 };
-            };
-        };
-    };
-    CategoriesController_findAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of categories */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryEntity"][];
-                };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CategoriesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCategoryDto"];
-            };
-        };
-        responses: {
-            /** @description Category created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryEntity"];
-                };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CategoriesController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Category found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryEntity"];
-                };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Category not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CategoriesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Category deleted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryEntity"];
-                };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Category not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    CategoriesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["UpdateCategoryDto"];
-            };
-        };
-        responses: {
-            /** @description Category updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CategoryEntity"];
-                };
-            };
-            /** @description Invalid or missing access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Category not found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -820,7 +730,7 @@ export interface operations {
             };
         };
     };
-    AdminsController_findByEmail: {
+    AdminsController_findAdminByEmail: {
         parameters: {
             query?: never;
             header?: never;
@@ -892,7 +802,7 @@ export interface operations {
             };
         };
     };
-    AdminsController_remove: {
+    AdminsController_removeAdmin: {
         parameters: {
             query?: never;
             header?: never;
@@ -928,7 +838,7 @@ export interface operations {
             };
         };
     };
-    AdminsController_update: {
+    AdminsController_updateAdmin: {
         parameters: {
             query?: never;
             header?: never;
@@ -937,7 +847,7 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
+        requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateAdminDto"];
             };

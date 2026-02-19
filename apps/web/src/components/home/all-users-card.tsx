@@ -1,4 +1,4 @@
-import { useUsers } from '@/api/hooks/use-users';
+import { useAdmins } from '@/hooks/use-admins';
 import { UsersTableSkeleton } from '@/components/users-table-skeleton';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { UsersTable, type UserRow } from './users-table';
+import { UsersTable } from './users-table';
 
 type AllUsersCardProps = {
   enabled: boolean;
@@ -16,7 +16,7 @@ type AllUsersCardProps = {
 };
 
 export function AllUsersCard({ enabled, currentUserEmail }: AllUsersCardProps) {
-  const { data: users, isLoading, isError, error } = useUsers({ enabled });
+  const { data: users, isLoading, isError, error } = useAdmins({ enabled });
 
   return (
     <Card>
@@ -51,7 +51,13 @@ export function AllUsersCard({ enabled, currentUserEmail }: AllUsersCardProps) {
 
         {users && users.length > 0 && (
           <UsersTable
-            users={users as UserRow[]}
+            users={
+              users?.map((u) => ({
+                id: u.id,
+                email: u.email,
+                name: u.name ?? '',
+              })) ?? []
+            }
             currentUserEmail={currentUserEmail}
           />
         )}

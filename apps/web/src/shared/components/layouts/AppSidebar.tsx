@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useAuthStore } from '@/stores/auth.store';
-import { useLogout } from '@/api/hooks/use-logout';
+import { useAuth } from '@/hooks/use-auth';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,12 +24,17 @@ const navItems = [
 
 function isActivePath(pathname: string, to: string) {
   if (to === '/') return pathname === '/';
-  return pathname === to || pathname.startsWith(to + '/');
+  const isParentOfAnotherRoute = navItems.some(
+    (item) => item.to !== to && item.to.startsWith(to + '/'),
+  );
+  if (pathname === to) return true;
+  if (isParentOfAnotherRoute) return pathname === to;
+  return pathname.startsWith(to + '/');
 }
 
 export function AppSidebar() {
   const user = useAuthStore((s) => s.user);
-  const logout = useLogout();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const routerState = useRouterState();
   const { isMobile, setOpenMobile } = useSidebar();
@@ -41,7 +46,7 @@ export function AppSidebar() {
     user?.name
       ?.split(' ')
       .filter(Boolean)
-      .map((part) => part[0]?.toUpperCase())
+      .map((part: string) => part[0]?.toUpperCase())
       .slice(0, 2)
       .join('') ??
     email?.[0]?.toUpperCase() ??
@@ -53,34 +58,47 @@ export function AppSidebar() {
   }
 
   function handleLogout() {
-    logout.mutate();
     if (isMobile) setOpenMobile(false);
+    logout.mutate();
   }
 
   return (
-    <Sidebar side='left' className='border-r border-sidebar-border'>
-      <SidebarHeader className='border-b border-sidebar-border'>
-        <div className='flex items-center gap-2 px-2 py-2'>
-          <img
-            src='/favicon.png'
-            alt=''
-            className='size-8 shrink-0 rounded-lg object-contain'
-          />
-          <div className='flex min-w-0 flex-1 flex-col'>
-            <span className='truncate font-semibold text-sidebar-foreground'>
-              Independent Learning
-            </span>
-          </div>
-        </div>
+    <Sidebar variant='floating' side='left'>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size='lg'
+              className='hover:bg-sidebar-accent/60 cursor-default'
+            >
+              <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary-foreground/15 text-sidebar-foreground font-bold text-sm'>
+                I
+              </div>
+              <div className='flex flex-col gap-0.5 leading-none'>
+                <span className='font-semibold text-sidebar-foreground'>
+                  Independent Learning
+                </span>
+                <span className='text-sidebar-foreground/60 text-xs'>
+                  Admin
+                </span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className='text-sidebar-foreground/50 uppercase tracking-wider text-[0.65rem] font-semibold'>
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className='gap-1'>
               {navItems.map(({ to, label, icon: Icon }) => (
                 <SidebarMenuItem key={to}>
                   <SidebarMenuButton
+                    size='default'
+                    className='cursor-pointer h-10'
                     isActive={isActivePath(pathname, to)}
                     onClick={() => handleNavigate(to)}
                     onKeyDown={(e) => {
@@ -89,10 +107,9 @@ export function AppSidebar() {
                         handleNavigate(to);
                       }
                     }}
-                    className='cursor-pointer'
                   >
-                    <Icon className='size-4' />
-                    {label}
+                    <Icon className='size-4 shrink-0' aria-hidden />
+                    <span>{label}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -100,10 +117,11 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className='border-t border-sidebar-border'>
-        <div className='flex flex-col gap-2 p-2'>
-          <div className='flex items-center gap-2 rounded-md px-2 py-2'>
-            <div className='flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-accent text-sidebar-accent-foreground text-xs font-medium'>
+
+      <SidebarFooter>
+        <div className='rounded-xl bg-sidebar-primary-foreground/10 p-3'>
+          <div className='flex items-center gap-3'>
+            <div className='flex size-9 items-center justify-center rounded-full bg-sidebar-primary-foreground/20 text-sidebar-foreground text-xs font-semibold'>
               {initials}
             </div>
             <div className='min-w-0 flex-1'>
@@ -111,22 +129,29 @@ export function AppSidebar() {
                 {displayName}
               </p>
               {email && (
-                <p className='truncate text-xs text-sidebar-foreground/80'>
+                <p
+                  className='truncate text-xs text-sidebar-foreground/60'
+                  title={email}
+                >
                   {email}
                 </p>
               )}
             </div>
           </div>
-          <SidebarMenuButton
-            onClick={() => handleLogout()}
-            disabled={logout.isPending}
-            className='cursor-pointer text-sidebar-foreground'
-            aria-label='Log out'
-          >
-            <LogOut className='size-4' />
-            Logout
-          </SidebarMenuButton>
         </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className='cursor-pointer h-10'
+              onClick={() => handleLogout()}
+              disabled={logout.isPending}
+              aria-label='Log out'
+            >
+              <LogOut className='size-4 shrink-0' aria-hidden />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,8 +1,14 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 export class CategoryEntity {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   name: string;
+
+  @ApiProperty({ type: String, nullable: true })
   description: string | null;
 
   @Exclude()

@@ -5,7 +5,7 @@ import { zodResolver } from '@/lib/zod-resolver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useRegister } from '@/api/hooks/use-register';
+import { useAuth } from '@/hooks/use-auth';
 import { extractErrorMessage } from '@/api/client';
 import { EyeIcon, EyeOffIcon, Loader2Icon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -43,7 +43,7 @@ function labelErrorClass(hasError: boolean) {
 }
 
 export function RegisterForm() {
-  const registerMutation = useRegister();
+  const { register: registerMutation } = useAuth();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

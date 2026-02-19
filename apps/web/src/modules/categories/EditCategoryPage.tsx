@@ -2,7 +2,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@/lib/zod-resolver';
-import { useCategory, useUpdateCategory } from '@/api/hooks/use-categories';
+import { useCategories } from '@/hooks/use-categories';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,18 +18,27 @@ import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
 const schema = z.object({
-  name: z.string().min(3, 'At least 3 characters').max(20, 'At most 20 characters'),
+  name: z
+    .string()
+    .min(3, 'At least 3 characters')
+    .max(20, 'At most 20 characters'),
   description: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 export function EditCategoryPage() {
-  const { categoryId } = useParams({ from: '/_app/categories/$categoryId/edit' });
+  const { categoryId } = useParams({
+    from: '/_app/categories/$categoryId/edit',
+  });
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { data: category, isLoading, isError } = useCategory(categoryId);
-  const updateCategory = useUpdateCategory(categoryId ?? '');
+  const {
+    category,
+    categoryLoading: isLoading,
+    categoryError: isError,
+    update: updateCategory,
+  } = useCategories({ categoryId });
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { name: '', description: '' },
@@ -37,12 +46,15 @@ export function EditCategoryPage() {
 
   useEffect(() => {
     if (category) {
-      form.reset({ name: category.name, description: category.description ?? '' });
+      form.reset({
+        name: category.name,
+        description: category.description ?? '',
+      });
     }
   }, [category, form]);
 
   async function onSubmit(values: FormValues) {
-    if (!categoryId) return;
+    if (!categoryId || !updateCategory) return;
     setSubmitError(null);
     try {
       await updateCategory.mutateAsync(values);
@@ -57,10 +69,10 @@ export function EditCategoryPage() {
 
   if (isLoading || !category) {
     return (
-      <div className="space-y-6">
-        <Card className="max-w-md">
-          <CardContent className="py-8">
-            <p className="text-center text-muted-foreground">
+      <div className='space-y-6'>
+        <Card className='max-w-md'>
+          <CardContent className='py-8'>
+            <p className='text-center text-muted-foreground'>
               {isLoading ? 'Loading...' : 'Category not found.'}
             </p>
           </CardContent>
@@ -71,12 +83,17 @@ export function EditCategoryPage() {
 
   if (isError) {
     return (
-      <div className="space-y-6">
-        <Card className="max-w-md">
-          <CardContent className="py-8">
-            <p className="text-center text-destructive">Failed to load category.</p>
-            <div className="mt-4 flex justify-center">
-              <Button variant="outline" onClick={() => navigate({ to: '/categories' })}>
+      <div className='space-y-6'>
+        <Card className='max-w-md'>
+          <CardContent className='py-8'>
+            <p className='text-center text-destructive'>
+              Failed to load category.
+            </p>
+            <div className='mt-4 flex justify-center'>
+              <Button
+                variant='outline'
+                onClick={() => navigate({ to: '/categories' })}
+              >
                 Back to categories
               </Button>
             </div>
@@ -87,49 +104,46 @@ export function EditCategoryPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="max-w-md">
+    <div className='space-y-6'>
+      <Card className='max-w-md'>
         <CardHeader>
           <CardTitle>Edit category</CardTitle>
           <CardDescription>Update category details</CardDescription>
         </CardHeader>
         <CardContent>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='name'>Name</Label>
               <Input
-                id="name"
+                id='name'
                 {...form.register('name')}
-                placeholder="Category name"
+                placeholder='Category name'
                 aria-invalid={!!form.formState.errors.name}
               />
               {form.formState.errors.name && (
-                <p className="text-sm text-destructive">
+                <p className='text-sm text-destructive'>
                   {form.formState.errors.name.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description (optional)</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='description'>Description (optional)</Label>
               <Input
-                id="description"
+                id='description'
                 {...form.register('description')}
-                placeholder="Description"
+                placeholder='Description'
               />
             </div>
             {submitError && (
-              <p className="text-sm text-destructive">{submitError}</p>
+              <p className='text-sm text-destructive'>{submitError}</p>
             )}
-            <div className="flex gap-2">
-              <Button type="submit" disabled={updateCategory.isPending}>
+            <div className='flex gap-2'>
+              <Button type='submit' disabled={updateCategory.isPending}>
                 {updateCategory.isPending ? 'Saving...' : 'Save'}
               </Button>
               <Button
-                type="button"
-                variant="outline"
+                type='button'
+                variant='outline'
                 onClick={() => navigate({ to: '/categories' })}
               >
                 Cancel

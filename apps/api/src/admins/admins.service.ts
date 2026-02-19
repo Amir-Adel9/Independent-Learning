@@ -103,9 +103,9 @@ export class AdminsService {
   }
 
   async updateAdmin(id: string, data: UpdateAdminDto): Promise<AdminEntity> {
-    const updateData = { ...data };
+    const updateData = { ...data } as UpdateAdminDto & { password?: string };
     if (updateData.password) {
-      (updateData as { password: string }).password = await bcrypt.hash(
+      updateData.password = await bcrypt.hash(
         updateData.password,
         SALT_ROUNDS,
       );

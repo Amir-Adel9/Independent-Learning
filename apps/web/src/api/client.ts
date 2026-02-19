@@ -6,6 +6,7 @@ import type { paths } from '@/api/schema';
 const AUTH_LOGIN = '/api/auth/login';
 const AUTH_REFRESH = '/api/auth/refresh';
 const AUTH_REGISTER = '/api/auth/register';
+/* Pathnames for 401 skip (full URL pathname still includes /api) */
 
 const AUTH_PATHS = new Set([AUTH_LOGIN, AUTH_REFRESH, AUTH_REGISTER]);
 
@@ -18,9 +19,9 @@ function isAuthPath(url: string): boolean {
   }
 }
 
-/** Base URL: same origin so /api/* hits Vite proxy in dev. */
+/** Base URL: origin + /api so paths in code are without /api (e.g. GET('/categories') -> /api/categories). */
 const API_BASE =
-  typeof window !== 'undefined' ? window.location.origin : '';
+  typeof window !== 'undefined' ? `${window.location.origin}/api` : '/api';
 
 let isRefreshing = false;
 let refreshPromise: Promise<Response> | null = null;
@@ -30,7 +31,6 @@ const REGISTER_PATH = '/register';
 
 function clearAndRedirect() {
   useAuthStore.getState().clearUser();
-  // Avoid infinite loop: if we're already on login/register, don't navigate
   if (typeof window !== 'undefined') {
     const path = window.location.pathname;
     if (path === LOGIN_PATH || path === REGISTER_PATH) return;
@@ -41,7 +41,7 @@ function clearAndRedirect() {
 async function doRefresh(): Promise<Response> {
   if (isRefreshing && refreshPromise) return refreshPromise;
   isRefreshing = true;
-  refreshPromise = fetch(`${API_BASE}${AUTH_REFRESH}`, {
+  refreshPromise = fetch(`${API_BASE}/auth/refresh`, {
     method: 'POST',
     credentials: 'include',
   });
@@ -86,7 +86,7 @@ client.use({
     if (!response.ok) {
       const err = Object.assign(
         new Error(`${response.status} ${response.statusText}`),
-        { response }
+        { response },
       ) as Error & { response: Response };
       throw err;
     }
